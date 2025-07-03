@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Client</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>Truco</h1>
+    <input type="text" id="message" placeholder="Type a message">
+    <button id="send">Send</button>
+    <div id="messages"></div>
+
+    <div>
+        <h3>Players</h3>
+        <div id="players"></div>
+    </div>
+
+    <div>
+        <h3>Log</h3>
+        <div id="logs"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
