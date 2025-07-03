@@ -1,0 +1,76 @@
+body {
+    height: 100vh;
+    background: linear-gradient(160deg, #4E71FF, #2c1580);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #4E71FF;
+    justify-content: center;
+    padding: 40px;
+    border-radius: 8px;
+    width: 400px;
+}
+
+h1 {
+    margin-bottom: 48px;
+    font-size: 60px;
+    letter-spacing: 4px;
+    font-weight: 700;
+    font-family: "Bahianita", sans-serif;
+    color: white;
+}
+
+button {
+    color: white;
+    text-decoration: none;
+    padding: 8px;
+    font-size: 24px;
+    font-weight: 700;
+    font-family: "Bahianita", sans-serif;
+    background: #8DD8FF;
+    border-radius: 4px;
+    letter-spacing: 2px;
+    transition: .2s ease;
+    cursor: pointer;
+    border: 2px solid #36117c;
+}
+
+button:hover {
+    filter: brightness(0.9);
+}
+
+.login-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.input-wrapper label {
+    color: white;
+    font-size: 18px;
+    font-weight: 500;
+    font-family: "Poppins", sans-serif;
+}
+
+.input-wrapper input {
+    background: #170659;
+    border: 2px solid #36117c;
+    border-radius: 2px;
+    padding: 6px;
+    font-size: 18px;
+    font-family: "Poppins", sans-serif;
+    color: white;
+}

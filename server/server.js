@@ -4,6 +4,7 @@ import { GameInstance } from "./game-instance.js";
 import { Player } from './player.js'
 import { v4 } from 'uuid'
 import { Server } from 'socket.io';
+import { PlayerMapper } from './mapper.js';
 
 const PORT = 3000
 
@@ -28,6 +29,8 @@ const updatePlayers = (game, player) => {
     })
 }
 
+const playerMapper = new PlayerMapper()
+
 try {
     const game = new GameInstance();
 
@@ -51,6 +54,25 @@ try {
             game.updateGameStatus()
 
             updatePlayers(game, player)
+
+            socket.emit("player_info", {
+                player: playerMapper.playerInfoOnly(player)
+            })
+
+            socket.broadcast.emit("server_message", {
+                message: player.name + " entrou no jogo."
+            })
+        })
+
+        socket.on("chat_send", (messageData) => {
+            if(messageData.message.length <= 0 || game.isPlayerInGame(messageData.userSender)) {
+                return
+            }
+
+            socket.broadcast.emit("chat_receive", {
+                userSender: messageData.userSender,
+                message: messageData.message
+            })
         })
 
         socket.on('disconnect', () => {
@@ -63,7 +85,7 @@ try {
         })
     })
 } catch (err) {
-    io.emit("server_error", {
+    io.emit("server_message", {
         message: "[Server]: Ocorreu um erro no servidor!"
     })
 

@@ -200,4 +200,11 @@ export class GameInstance {
             this.startGame();
         }, 10000);
     }
+
+    isPlayerInGame (player) {
+        this.players.forEach(p => {
+            if(player.id == p.id) return true;
+        })
+        return false;
+    }
 }

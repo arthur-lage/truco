@@ -1,0 +1,43 @@
+body {
+    height: 100vh;
+    background: linear-gradient(160deg, #4E71FF, #2c1580);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #4E71FF;
+    justify-content: center;
+    padding: 40px;
+    border-radius: 8px;
+}
+
+h1 {
+    margin-bottom: 48px;
+    font-size: 60px;
+    letter-spacing: 4px;
+    font-weight: 700;
+    font-family: "Bahianita", sans-serif;
+    color: white;
+}
+
+a {
+    color: white;
+    text-decoration: none;
+    padding: 14px;
+    font-size: 30px;
+    font-weight: 700;
+    font-family: "Bahianita", sans-serif;
+    background: #8DD8FF;
+    border-radius: 4px;
+    letter-spacing: 2px;
+    transition: .2s ease;
+}
+
+a:hover {
+    filter: brightness(0.9);
+}
