@@ -2,13 +2,13 @@ export const cards = [
     {
         naipe: "paus",
         nome: "Quatro de Paus",   
-        idcarta: "quatro-de-paus",
+        idcarta: "4-de-paus",
         valor: 14
     },
     {
         naipe: "copas",
         nome: "Sete de Copas",    
-        idcarta: "sete-de-copas",
+        idcarta: "7-de-copas",
         valor: 13
     },
     {
@@ -20,57 +20,57 @@ export const cards = [
     {
         naipe: "ouros",
         nome: "Sete de Ouros", 
-        idcarta: "sete-de-ouros",
+        idcarta: "7-de-ouros",
         valor: 11
     },
 
     {
         naipe: "paus",
         nome: "Três de Paus",
-        idcarta: "tres-de-paus",
+        idcarta: "3-de-paus",
         valor: 10
     },
     {
         naipe: "copas",
         nome: "Três de Copas",
-        idcarta: "tres-de-copas",
+        idcarta: "3-de-copas",
         valor: 10
     },
     {
         naipe: "espadas",
         nome: "Três de Espadas",
-        idcarta: "tres-de-espadas",
+        idcarta: "3-de-espadas",
         valor: 10
     },
     {
         naipe: "ouros",
         nome: "Três de Ouros",
-        idcarta: "tres-de-ouros",
+        idcarta: "3-de-ouros",
         valor: 10
     },
 
     {
         naipe: "paus",
         nome: "Dois de Paus",
-        idcarta: "dois-de-paus",
+        idcarta: "2-de-paus",
         valor: 9
     },
     {
         naipe: "copas",
         nome: "Dois de Copas",
-        idcarta: "dois-de-copas",
+        idcarta: "2-de-copas",
         valor: 9
     },
     {
         naipe: "espadas",
         nome: "Dois de Espadas",
-        idcarta: "dois-de-espadas",
+        idcarta: "2-de-espadas",
         valor: 9
     },
     {
         naipe: "ouros",
         nome: "Dois de Ouros",
-        idcarta: "dois-de-ouros",
+        idcarta: "2-de-ouros",
         valor: 9
     },
 
@@ -171,82 +171,82 @@ export const cards = [
     {
         naipe: "espadas",
         nome: "Sete de Espadas",
-        idcarta: "sete-de-espadas",
+        idcarta: "7-de-espadas",
         valor: 4
     },
     {
         naipe: "paus",
         nome: "Sete de Paus",
-        idcarta: "sete-de-paus",
+        idcarta: "7-de-paus",
         valor: 4
     },
 
     {
         naipe: "paus",
         nome: "Seis de Paus",
-        idcarta: "seis-de-paus",
+        idcarta: "6-de-paus",
         valor: 3
     },
     {
         naipe: "copas",
         nome: "Seis de Copas",
-        idcarta: "seis-de-copas",
+        idcarta: "6-de-copas",
         valor: 3
     },
     {
         naipe: "espadas",
         nome: "Seis de Espadas",
-        idcarta: "seis-de-espadas",
+        idcarta: "6-de-espadas",
         valor: 3
     },
     {
         naipe: "ouros",
         nome: "Seis de Ouros",
-        idcarta: "seis-de-ouros",
+        idcarta: "6-de-ouros",
         valor: 3
     },
 
     {
         naipe: "paus",
         nome: "Cinco de Paus",
-        idcarta: "cinco-de-paus",
+        idcarta: "5-de-paus",
         valor: 2
     },
     {
         naipe: "copas",
         nome: "Cinco de Copas",
-        idcarta: "cinco-de-copas",
+        idcarta: "5-de-copas",
         valor: 2
     },
     {
         naipe: "espadas",
         nome: "Cinco de Espadas",
-        idcarta: "cinco-de-espadas",
+        idcarta: "5-de-espadas",
         valor: 2
     },
     {
         naipe: "ouros",
         nome: "Cinco de Ouros",
-        idcarta: "cinco-de-ouros",
+        idcarta: "5-de-ouros",
         valor: 2
     },
 
     {
         naipe: "espadas",
         nome: "Quatro de Espadas",
-        idcarta: "quatro-de-espadas",
+        idcarta: "4-de-espadas",
         valor: 1
     },
     {
         naipe: "copas",
         nome: "Quatro de Copas",
-        idcarta: "quatro-de-copas",
+        idcarta: "4-de-copas",
         valor: 1
     },
     {
         naipe: "ouros",
         nome: "Quatro de Ouros",
-        idcarta: "quatro-de-ouros",
+        idcarta: "4-de-ouros",
         valor: 1
     }
 ];
