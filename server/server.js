@@ -17,6 +17,8 @@ const io = new Server(httpServer, {
     }
 })
 
+const playerSockets = new Map()
+
 app.get("/", (req, res) => {
     res.send("FUncionando")
 })
@@ -32,9 +34,11 @@ const updatePlayers = (game, player) => {
 const playerMapper = new PlayerMapper()
 
 try {
-    const game = new GameInstance();
+    const game = new GameInstance(playerSockets);
 
     io.on('connection', socket => {
+        
+
         console.log("Jogador entrou.")
 
         const user_id = v4()
@@ -51,6 +55,8 @@ try {
 
             game.addPlayer(player)
 
+            playerSockets.set(player.id, socket)
+
             game.updateGameStatus()
 
             updatePlayers(game, player)
@@ -63,9 +69,9 @@ try {
                 message: player.name + " entrou no jogo."
             })
         })
-
+        
         socket.on("chat_send", (messageData) => {
-            if(messageData.message.length <= 0 || game.isPlayerInGame(messageData.userSender)) {
+            if (messageData.message.length <= 0 || game.isPlayerInGame(messageData.userSender)) {
                 return
             }
 
@@ -75,12 +81,52 @@ try {
             })
         })
 
+        socket.on("play_card", ({ playerId, cardIndex }) => {
+            if (playerId != game.getCurrentPlayer()) {
+                socket.emit("error_message", { message: "Não é a sua vez!" })
+                return;
+            }
+
+            const result = game.playCard(playerId, cardIndex)
+            if (!result.success) {
+                socket.emit("error_message", { message: result.message });
+                return;
+            }
+
+            io.emit("card_played", {
+                playerId,
+                card: result.card,
+                remaining: result.remainingCards
+            });
+
+            // se acabou a rodada (== 4 cartas), espera o endRound interno
+            if (game.currentState === "round_end") {
+                // opcional: informe quem ganhou a rodada
+                const winner = game.determineRoundWinner();
+                io.emit("round_winner", {
+                    playerId: winner.player.id,
+                    card: winner.card,
+                    nextRound: game.currentRound + 1
+                });
+
+                // após timeout interno, game.currentRound já foi incrementado
+                setTimeout(() => {
+                    // recomeça a próxima rodada
+                    promptNextPlayer(game);
+                }, 3000);
+            } else {
+                // passa pro próximo jogador imediatamente
+                promptNextPlayer(game);
+            }
+        })
+
         socket.on('disconnect', () => {
             console.log("Jogador desconectado: " + socket.id)
             game.removePlayer(socket.id)
+            playerSockets.delete(socket.id)
 
             game.updateGameStatus()
-            
+
             updatePlayers(game, player)
         })
     })

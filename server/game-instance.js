@@ -9,10 +9,12 @@ export class GameInstance {
     currentRound = 1
     playedCards = []
     playerOrder = []
+    playerSockets = new Map()
 
-    constructor() {
+    constructor(playerSockets) {
         this.players = []
         this.currentCardStack = [...cards]
+        this.playerSockets = playerSockets
     }
 
     addPlayer(player) {
@@ -23,22 +25,22 @@ export class GameInstance {
     removePlayer(id) {
         this.players = this.players.filter(player => player.id !== id);
         this.updateGameStatus();
-        
+
         // Se o jogo estava em andamento e um jogador saiu
         if (this.running) {
             this.stopGame();
         }
     }
 
-    pickCard() {
-        let randomIndex = Math.floor(Math.random() * this.currentCardStack.length - 1)
-        let selectedCard = this.cards.splice(randomIndex, 1)
-        return player.currentCards.push(selectedCard)
-    }
+    // pickCard() {
+    //     let randomIndex = Math.floor(Math.random() * this.currentCardStack.length - 1)
+    //     let selectedCard = this.cards.splice(randomIndex, 1)
+    //     return player.currentCards.push(selectedCard)
+    // }
 
     giveCards() {
         this.shuffleCards();
-        
+
         this.players.forEach(player => {
             player.cards = this.currentCardStack.splice(0, 3);
         });
@@ -47,28 +49,43 @@ export class GameInstance {
     shuffleCards() {
         for (let i = this.currentCardStack.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [this.currentCardStack[i], this.currentCardStack[j]] = 
-            [this.currentCardStack[j], this.currentCardStack[i]];
+            [this.currentCardStack[i], this.currentCardStack[j]] =
+                [this.currentCardStack[j], this.currentCardStack[i]];
         }
     }
 
     setPlayerOrder() {
         this.playerOrder = [...this.players];
         this.shufflePlayerOrder();
-        
+
         this.currentPlayerIndex = 0;
     }
 
     shufflePlayerOrder() {
         for (let i = this.playerOrder.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [this.playerOrder[i], this.playerOrder[j]] = 
-            [this.playerOrder[j], this.playerOrder[i]];
+            [this.playerOrder[i], this.playerOrder[j]] =
+                [this.playerOrder[j], this.playerOrder[i]];
+        }
+    }
+
+    promptNextPlayer(game) {
+        const currentPlayer = game.getCurrentPlayer()
+        const sock = this.playerSockets.get(currentPlayer.id)
+    
+        console.log(currentPlayer)
+        console.log(sock)
+
+        if(sock) {
+            sock.emit("your_turn", {
+                round: game.currentRound,
+                currentCards: currentPlayer.currentCards
+            })
         }
     }
 
     startGame() {
-        if(this.players.length < 4) {
+        if (this.players.length < 4) {
             console.log("Não há jogadores suficientes para começar.")
             return;
         }
@@ -79,6 +96,17 @@ export class GameInstance {
         this.setPlayerOrder()
         this.currentState = "playing"
         console.log("Jogo iniciado.")
+
+        for (const player of this.players) {
+            const sock = this.playerSockets.get(player.id);
+            if (sock) {
+                sock.emit("give_cards", {
+                    currentCards: player.cards
+                });
+            }
+        }
+
+        this.promptNextPlayer(this)
     }
 
     reset() {
@@ -107,7 +135,7 @@ export class GameInstance {
             this.stopGame();
         }
     }
-    
+
     getCurrentPlayer() {
         return this.playerOrder[this.currentPlayerIndex];
     }
@@ -131,7 +159,7 @@ export class GameInstance {
         }
 
         const playedCard = player.cards.splice(cardIndex, 1)[0];
-        
+
         this.playedCards.push({
             playerId: player.id,
             card: playedCard,
@@ -144,8 +172,8 @@ export class GameInstance {
             this.nextPlayer();
         }
 
-        return { 
-            success: true, 
+        return {
+            success: true,
             card: playedCard,
             remainingCards: player.cards.length
         };
@@ -157,15 +185,15 @@ export class GameInstance {
 
     endRound() {
         this.currentState = "round_end";
-        
+
         const winner = this.determineRoundWinner();
-        
+
         console.log(`Rodada ${this.currentRound} vencida por ${winner.player.name}`);
-        
+
         setTimeout(() => {
             this.currentRound++;
             this.playedCards = [];
-            
+
             if (this.currentRound > 3) {
                 this.endGame();
             } else {
@@ -184,7 +212,7 @@ export class GameInstance {
                 strongestCard = played;
             }
         }
-        
+
         return {
             player: this.players.find(p => p.id === strongestCard.playerId),
             card: strongestCard.card
@@ -194,16 +222,16 @@ export class GameInstance {
     endGame() {
         this.currentState = "game_end";
         console.log("Fim de jogo!");
-        
+
         setTimeout(() => {
             this.reset();
             this.startGame();
         }, 10000);
     }
 
-    isPlayerInGame (player) {
+    isPlayerInGame(player) {
         this.players.forEach(p => {
-            if(player.id == p.id) return true;
+            if (player.id == p.id) return true;
         })
         return false;
     }

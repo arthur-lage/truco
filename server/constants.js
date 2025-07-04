@@ -145,26 +145,26 @@ export const cards = [
 
     {
         naipe: "paus",
-        nome: "Dama de Paus",
-        idcarta: "dama-de-paus",
+        nome: "Rainha de Paus",
+        idcarta: "rainha-de-paus",
         valor: 5
     },
     {
         naipe: "copas",
-        nome: "Dama de Copas",
-        idcarta: "dama-de-copas",
+        nome: "Rainha de Copas",
+        idcarta: "rainha-de-copas",
         valor: 5
     },
     {
         naipe: "espadas",
-        nome: "Dama de Espadas",
-        idcarta: "dama-de-espadas",
+        nome: "Rainha de Espadas",
+        idcarta: "rainha-de-espadas",
         valor: 5
     },
     {
         naipe: "ouros",
-        nome: "Dama de Ouros",
-        idcarta: "dama-de-ouros",
+        nome: "Rainha de Ouros",
+        idcarta: "rainha-de-ouros",
         valor: 5
     },
 
