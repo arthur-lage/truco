@@ -10,6 +10,59 @@ h1 {
     margin-bottom: 30px;
 }
 
+.game-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.game-part {
+    gap: 40px;
+    display: flex;
+}
+
+#game-window {
+    width: 1000px;
+    height: 570px;
+    background: #a07eb4;
+    border-radius: 6px;
+    padding: 14px;
+}
+
+#game-window.not-your-turn {
+    cursor: not-allowed;
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+#game-window #last-cards {
+    margin: 40px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.cards {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    width: 100%;
+}
+
+.card {
+    width: 80px;
+    height: 150px;
+    cursor: pointer;
+    transition: .2s ease-out;
+}
+
+.card:hover{
+    transform: scale(1.1) translateY(-20px);
+}
+
+.card img {
+    width: 100%;
+}
+
 .side-panel {
     display: flex;
     flex-direction: column;
@@ -50,7 +103,6 @@ h1 {
 .players-container .player-card p {
     font-family: "Poppins", sans-serif;
     font-size: 16px;
-    /* color: #0a0b34; */
     font-weight: 500;
 }
 
@@ -58,6 +110,7 @@ h1 {
     width: 100%;
     display: flex;
     flex-direction: column;
+    height: 100%;
     padding: 14px;
     background: #a07eb4;
     border-radius: 8px;
@@ -75,7 +128,7 @@ h1 {
     display: flex;
     flex-direction: column;
     overflow-y: scroll;
-    height: 180px;
+    height: 100%;
     gap: 5px;
 }
 

@@ -35,10 +35,27 @@ const playerMapper = new PlayerMapper()
 
 try {
     const game = new GameInstance(playerSockets);
+    game.setSocketIO(io)
+
+    const addPlayerToGame = (player, socket) => {
+        playerSockets.set(player.id, socket)
+
+        game.addPlayer(player) // Agora dentro de addPlayer -> updateGameStatus
+
+        updatePlayers(game, player)
+
+        game.updateGameStatus()
+
+        socket.emit("player_info", {
+            player: playerMapper.playerInfoOnly(player)
+        })
+
+        socket.broadcast.emit("server_message", {
+            message: player.name + " entrou no jogo."
+        })
+    }
 
     io.on('connection', socket => {
-        
-
         console.log("Jogador entrou.")
 
         const user_id = v4()
@@ -49,27 +66,12 @@ try {
         socket.on("login_send", (data) => {
             const user_nickname = data.nickname
 
-            const player = new Player()
             player.id = user_id
             player.name = user_nickname;
 
-            game.addPlayer(player)
-
-            playerSockets.set(player.id, socket)
-
-            game.updateGameStatus()
-
-            updatePlayers(game, player)
-
-            socket.emit("player_info", {
-                player: playerMapper.playerInfoOnly(player)
-            })
-
-            socket.broadcast.emit("server_message", {
-                message: player.name + " entrou no jogo."
-            })
+            addPlayerToGame(player, socket)
         })
-        
+
         socket.on("chat_send", (messageData) => {
             if (messageData.message.length <= 0 || game.isPlayerInGame(messageData.userSender)) {
                 return
@@ -81,13 +83,15 @@ try {
             })
         })
 
-        socket.on("play_card", ({ playerId, cardIndex }) => {
-            if (playerId != game.getCurrentPlayer()) {
+        socket.on("play_card", ({ playerId, cardId }) => {
+            console.log("current palyer:" + game.getCurrentPlayer())
+            
+            if (playerId != game.getCurrentPlayer().id) {
                 socket.emit("error_message", { message: "Não é a sua vez!" })
                 return;
             }
 
-            const result = game.playCard(playerId, cardIndex)
+            const result = game.playCard(playerId, cardId)
             if (!result.success) {
                 socket.emit("error_message", { message: result.message });
                 return;
@@ -99,24 +103,13 @@ try {
                 remaining: result.remainingCards
             });
 
-            // se acabou a rodada (== 4 cartas), espera o endRound interno
+            // CORREÇÃO 3: Sincronização de eventos
             if (game.currentState === "round_end") {
-                // opcional: informe quem ganhou a rodada
-                const winner = game.determineRoundWinner();
-                io.emit("round_winner", {
-                    playerId: winner.player.id,
-                    card: winner.card,
-                    nextRound: game.currentRound + 1
-                });
-
-                // após timeout interno, game.currentRound já foi incrementado
-                setTimeout(() => {
-                    // recomeça a próxima rodada
-                    promptNextPlayer(game);
-                }, 3000);
+                // Não emitir round_winner aqui - será feito pelo GameInstance
+                // Apenas aguardar próxima rodada
             } else {
-                // passa pro próximo jogador imediatamente
-                promptNextPlayer(game);
+                // Chamar diretamente o método do jogo
+                game.promptNextPlayer();
             }
         })
 

@@ -19,23 +19,33 @@
 </head>
 
 <body>
-    <h1>Truco</h1>
+    <div class="game-container">
+        <h1>Truco</h1>
 
-    <div class="side-panel">
-        <div class="players-container">
-        <h3 class="title">Jogadores</h3>
-        <div id="players"></div>
-    </div>
+        <section class="game-part">
+            <div id="game-window">
+                <div id="last-cards"></div>
 
-    <div class="chat-container">
-        <h3 class="title">Chat</h3>
-        <div id="chat"></div>
+                <div class="cards"></div>
+            </div>
 
-        <div class="input-wrapper">
-            <textarea placeholder="Mensagem..." name="chatbox" id="chatbox"></textarea>
-            <button id="send-message">Enviar</button>
-        </div>
-    </div>
+            <div class="side-panel">
+                <div class="players-container">
+                    <h3 class="title">Jogadores</h3>
+                    <div id="players"></div>
+                </div>
+
+                <div class="chat-container">
+                    <h3 class="title">Chat</h3>
+                    <div id="chat"></div>
+
+                    <div class="input-wrapper">
+                        <textarea placeholder="Mensagem..." name="chatbox" id="chatbox"></textarea>
+                        <button id="send-message">Enviar</button>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
     <script type="module" src="../scripts/game.js"></script>

@@ -42,7 +42,7 @@ export class GameInstance {
         this.shuffleCards();
 
         this.players.forEach(player => {
-            player.cards = this.currentCardStack.splice(0, 3);
+            player.currentCards = this.currentCardStack.splice(0, 3);
         });
     }
 
@@ -69,44 +69,44 @@ export class GameInstance {
         }
     }
 
-    promptNextPlayer(game) {
-        const currentPlayer = game.getCurrentPlayer()
-        const sock = this.playerSockets.get(currentPlayer.id)
-    
-        console.log(currentPlayer)
-        console.log(sock)
+    promptNextPlayer() { // CORREÇÃO 2: Remover parâmetro
+        const currentPlayer = this.getCurrentPlayer();
+        const sock = this.playerSockets.get(currentPlayer.id);
 
-        if(sock) {
+        if (sock) {
+            console.log("Enviando 'your_turn' para", currentPlayer.name);
             sock.emit("your_turn", {
-                round: game.currentRound,
-                currentCards: currentPlayer.currentCards
-            })
+                round: this.currentRound,
+                currentCards: currentPlayer.currentCards // CORRIGIDO: cards em vez de currentCards
+            });
         }
     }
 
     startGame() {
         if (this.players.length < 4) {
-            console.log("Não há jogadores suficientes para começar.")
+            console.log("Não há jogadores suficientes para começar.");
             return;
         }
 
         this.running = true;
-        this.currentState = "dealing"
-        this.giveCards()
-        this.setPlayerOrder()
-        this.currentState = "playing"
-        console.log("Jogo iniciado.")
+        this.currentState = "dealing";
+        this.giveCards();
+        this.setPlayerOrder();
+        this.currentState = "playing";
+        console.log("Jogo iniciado.");
 
-        for (const player of this.players) {
-            const sock = this.playerSockets.get(player.id);
-            if (sock) {
-                sock.emit("give_cards", {
-                    currentCards: player.cards
-                });
+        // CORREÇÃO: Esperar todos os sockets estarem prontos
+        setTimeout(() => {
+            for (const player of this.players) {
+                const sock = this.playerSockets.get(player.id);
+                if (sock) {
+                    sock.emit("give_cards", {
+                        currentCards: player.currentCards
+                    });
+                }
             }
-        }
-
-        this.promptNextPlayer(this)
+            this.promptNextPlayer(); // Iniciar primeira jogada
+        }, 100);
     }
 
     reset() {
@@ -140,7 +140,7 @@ export class GameInstance {
         return this.playerOrder[this.currentPlayerIndex];
     }
 
-    playCard(playerId, cardIndex) {
+    playCard(playerId, cardId) {
         if (!this.running || this.currentState !== "playing") {
             return { success: false, message: "O jogo não está em andamento" };
         }
@@ -154,11 +154,19 @@ export class GameInstance {
             return { success: false, message: "Não é a vez deste jogador" };
         }
 
-        if (cardIndex < 0 || cardIndex >= player.cards.length) {
+        console.log(cardId)
+
+        let playedCard = null
+
+        cards.forEach(el => {
+            if (el.idcarta == cardId) {
+                playedCard = el
+            }
+        })
+
+        if (!playedCard) {
             return { success: false, message: "Carta inválida" };
         }
-
-        const playedCard = player.cards.splice(cardIndex, 1)[0];
 
         this.playedCards.push({
             playerId: player.id,
@@ -175,34 +183,12 @@ export class GameInstance {
         return {
             success: true,
             card: playedCard,
-            remainingCards: player.cards.length
+            remainingCards: player.currentCards.length
         };
     }
 
     nextPlayer() {
         this.currentPlayerIndex = (this.currentPlayerIndex + 1) % 4;
-    }
-
-    endRound() {
-        this.currentState = "round_end";
-
-        const winner = this.determineRoundWinner();
-
-        console.log(`Rodada ${this.currentRound} vencida por ${winner.player.name}`);
-
-        setTimeout(() => {
-            this.currentRound++;
-            this.playedCards = [];
-
-            if (this.currentRound > 3) {
-                this.endGame();
-            } else {
-                this.currentState = "playing";
-                const winnerIndex = this.playerOrder.findIndex(p => p.id === winner.player.id);
-                this.currentPlayerIndex = winnerIndex;
-                console.log(`Iniciando rodada ${this.currentRound}`);
-            }
-        }, 3000);
     }
 
     determineRoundWinner() {
@@ -234,5 +220,53 @@ export class GameInstance {
             if (player.id == p.id) return true;
         })
         return false;
+    }
+
+    endRound() {
+        this.currentState = "round_end";
+        const winner = this.determineRoundWinner();
+
+        console.log(`Rodada ${this.currentRound} vencida por ${winner.player.name}`);
+
+        if (this.io) {
+            this.io.emit("round_winner", {
+                playerId: winner.player.id,
+                card: winner.card,
+                nextRound: this.currentRound + 1
+            });
+        }
+
+        setTimeout(() => {
+            this.currentRound++;
+            this.playedCards = [];
+
+            if (this.currentRound > 3) {
+                this.endGame();
+            } else {
+                this.giveCards()
+
+                // CORREÇÃO: Esperar todos os sockets estarem prontos
+                setTimeout(() => {
+                    for (const player of this.players) {
+                        const sock = this.playerSockets.get(player.id);
+                        if (sock) {
+                            sock.emit("give_cards", {
+                                currentCards: player.currentCards
+                            });
+                        }
+                    }
+                    this.promptNextPlayer(); // Iniciar primeira jogada
+                }, 100);
+
+                this.currentState = "playing";
+                const winnerIndex = this.playerOrder.findIndex(p => p.id === winner.player.id);
+                this.currentPlayerIndex = winnerIndex;
+                console.log(`Iniciando rodada ${this.currentRound}`);
+            }
+        }, 3000);
+    }
+
+    setSocketIO(io) {
+        this.io = io;
     }
 }
