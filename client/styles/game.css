@@ -20,6 +20,32 @@ h1 {
     display: flex;
 }
 
+.overlay {
+    z-index: 100;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 40px;
+    padding: 40px;
+    pointer-events: none;
+}
+
+.overlay .message {
+    background: white;
+    border-radius: 8px;
+    font-size: 22px;
+    font-family: "Poppins", sans-serif;
+    font-weight: 500;
+    color: black;
+    pointer-events: auto;
+    padding: 8px 20px;
+}
+
 #game-window {
     width: 1000px;
     height: 570px;
@@ -39,6 +65,28 @@ h1 {
     display: flex;
     align-items: center;
     gap: 20px;
+}
+
+#game-window.not-your-turn #trucar {
+    display: none;
+}
+
+#game-window #trucar {
+    cursor: pointer;
+    padding: 8px;
+    font-size: 18px;
+    background-color: #ff4d6d;
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    color: white;
+    transition: .2s ease;
+    border-radius: 4px;
+    border: 3px solid #941b31;
+    letter-spacing: 3px;
+}
+
+#game-window #trucar:hover {
+    transform: scale(1.1);
 }
 
 .cards {

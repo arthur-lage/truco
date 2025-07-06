@@ -100,7 +100,7 @@ export class GameInstance {
             for (const player of this.players) {
                 const sock = this.playerSockets.get(player.id);
                 if (sock) {
-                    sock.emit("give_cards", {
+                    sock.emit("update_cards", {
                         currentCards: player.currentCards
                     });
                 }
@@ -117,13 +117,14 @@ export class GameInstance {
         this.playedCards = []
         this.currentRound = 1
         this.currentPlayerIndex = 0
-    }
+    } 
 
     stopGame() {
         this.running = false;
         this.currentState = "waiting"
         this.reset()
         console.log("Jogo interrompido.")
+        this.io.emit("game_stop")
     }
 
     updateGameStatus() {
@@ -146,6 +147,7 @@ export class GameInstance {
         }
 
         const player = this.players.find(p => p.id === playerId);
+
         if (!player) {
             return { success: false, message: "Jogador não encontrado" };
         }
@@ -154,7 +156,7 @@ export class GameInstance {
             return { success: false, message: "Não é a vez deste jogador" };
         }
 
-        console.log(cardId)
+        player.currentCards = player.currentCards.filter(c => c.idcarta != cardId)
 
         let playedCard = null
 
@@ -194,7 +196,7 @@ export class GameInstance {
     determineRoundWinner() {
         let strongestCard = this.playedCards[0];
         for (const played of this.playedCards) {
-            if (played.card.value > strongestCard.card.value) {
+            if (played.card.valor > strongestCard.card.valor) {
                 strongestCard = played;
             }
         }
@@ -209,10 +211,14 @@ export class GameInstance {
         this.currentState = "game_end";
         console.log("Fim de jogo!");
 
+        this.io.emit("game_end", {
+            gameWinner: "Time X"
+        })
+
         setTimeout(() => {
             this.reset();
             this.startGame();
-        }, 10000);
+        }, 5000);
     }
 
     isPlayerInGame(player) {
@@ -226,13 +232,14 @@ export class GameInstance {
         this.currentState = "round_end";
         const winner = this.determineRoundWinner();
 
-        console.log(`Rodada ${this.currentRound} vencida por ${winner.player.name}`);
+        console.log(`Rodada ${this.currentRound} vencida por ${winner.player.name}`)
 
         if (this.io) {
             this.io.emit("round_winner", {
                 playerId: winner.player.id,
                 card: winner.card,
-                nextRound: this.currentRound + 1
+                nextRound: this.currentRound + 1,
+                message: `Rodada ${this.currentRound} vencida por ${winner.player.name}`
             });
         }
 
@@ -243,18 +250,18 @@ export class GameInstance {
             if (this.currentRound > 3) {
                 this.endGame();
             } else {
-                this.giveCards()
+                // this.giveCards()
 
                 // CORREÇÃO: Esperar todos os sockets estarem prontos
                 setTimeout(() => {
-                    for (const player of this.players) {
-                        const sock = this.playerSockets.get(player.id);
-                        if (sock) {
-                            sock.emit("give_cards", {
-                                currentCards: player.currentCards
-                            });
-                        }
-                    }
+                    // for (const player of this.players) {
+                    //     const sock = this.playerSockets.get(player.id);
+                    //     if (sock) {
+                    //         sock.emit("give_cards", {
+                    //             currentCards: player.currentCards
+                    //         });
+                    //     }
+                    // }
                     this.promptNextPlayer(); // Iniciar primeira jogada
                 }, 100);
 

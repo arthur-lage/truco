@@ -97,6 +97,10 @@ try {
                 return;
             }
 
+            socket.emit("update_cards", {
+                currentCards: game.players.find(p => p.id === playerId).currentCards
+            })
+
             io.emit("card_played", {
                 playerId,
                 card: result.card,
