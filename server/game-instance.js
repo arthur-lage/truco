@@ -1,4 +1,6 @@
 import { cards } from "./constants.js"
+import { Duo } from "./duo.js"
+import { PlayerMapper } from "./mapper.js"
 
 export class GameInstance {
     players = []
@@ -7,14 +9,19 @@ export class GameInstance {
     currentState = "waiting"
     currentPlayerIndex = 0
     currentRound = 1
+    currentRoundValue = 2
     playedCards = []
     playerOrder = []
     playerSockets = new Map()
+    maoDeFerro = true
+    duos = []
+    playerMapper
 
     constructor(playerSockets) {
         this.players = []
         this.currentCardStack = [...cards]
         this.playerSockets = playerSockets
+        this.playerMapper = new PlayerMapper()
     }
 
     addPlayer(player) {
@@ -31,12 +38,6 @@ export class GameInstance {
             this.stopGame();
         }
     }
-
-    // pickCard() {
-    //     let randomIndex = Math.floor(Math.random() * this.currentCardStack.length - 1)
-    //     let selectedCard = this.cards.splice(randomIndex, 1)
-    //     return player.currentCards.push(selectedCard)
-    // }
 
     giveCards() {
         this.shuffleCards();
@@ -69,17 +70,43 @@ export class GameInstance {
         }
     }
 
-    promptNextPlayer() { // CORREÇÃO 2: Remover parâmetro
+    promptNextPlayer() {
         const currentPlayer = this.getCurrentPlayer();
         const sock = this.playerSockets.get(currentPlayer.id);
 
         if (sock) {
-            console.log("Enviando 'your_turn' para", currentPlayer.name);
             sock.emit("your_turn", {
                 round: this.currentRound,
-                currentCards: currentPlayer.currentCards // CORRIGIDO: cards em vez de currentCards
+                currentCards: currentPlayer.currentCards
             });
+
+            this.io.emit("current_player", {
+                currentPlayer
+            })
         }
+    }
+
+    createDuos() {
+        if(this.players.length < 4) {
+            console.log("Jogadores insuficientes.")
+            return
+        }
+
+        this.duos.players = []
+        
+        const duoA = new Duo("A")
+        const duoB = new Duo("B")
+
+        for (let i = 0; i < 4; i++) {
+            if (i % 2 == 0) {
+                duoA.players.push(this.playerMapper.playerInfoOnly(this.playerOrder[i]))
+            } else {
+                duoB.players.push(this.playerMapper.playerInfoOnly(this.playerOrder[i]))
+            }
+        }
+
+        this.duos.push(duoA.players)
+        this.duos.push(duoB.players)
     }
 
     startGame() {
@@ -91,7 +118,16 @@ export class GameInstance {
         this.running = true;
         this.currentState = "dealing";
         this.giveCards();
+
+        // console.log("New player order: ")
+        // console.dir(this.playerOrder)
+
         this.setPlayerOrder();
+
+        // console.log("New player order: ")
+        // console.dir(this.playerOrder)
+
+        this.createDuos();
         this.currentState = "playing";
         console.log("Jogo iniciado.");
 
@@ -103,21 +139,41 @@ export class GameInstance {
                     sock.emit("update_cards", {
                         currentCards: player.currentCards
                     });
+
+
                 }
             }
+
+            {
+                console.log("vou emitir: ")
+                console.dir(this.duos[0])
+                console.dir(this.duos[1])
+
+                this.io.emit("duo_info", {
+                    duoA: this.duos[0],
+                    duoB: this.duos[1]
+                })
+
+                console.log("emiti: ")
+            }
+
             this.promptNextPlayer(); // Iniciar primeira jogada
         }, 100);
     }
 
     reset() {
+        console.dir(this.players)
         this.players.forEach(player => {
             player.reset()
         })
         this.currentCardStack = [...cards]
         this.playedCards = []
+        this.setPlayerOrder()
+        this.createDuos()
         this.currentRound = 1
         this.currentPlayerIndex = 0
-    } 
+        this.currentRoundValue = 2
+    }
 
     stopGame() {
         this.running = false;
